@@ -250,12 +250,10 @@ $RECYCLE.BIN/
 *.lnk
 
 # Large datasets
-data/
 datasets/
 
 # ML experiment outputs
 runs/
-outputs/
 checkpoints/
 logs/
 tb_logs/
