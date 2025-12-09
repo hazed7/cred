@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import (train_test_split, StratifiedKFold, GridSearchCV)
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
@@ -23,9 +24,9 @@ def baseline():
     }
 
     pipeline_base = imblearn.pipeline.make_pipeline(StandardScaler(),
+                                                    SMOTE(sampling_strategy=0.5, random_state=42),
                                                     LogisticRegression(random_state=42,
                                                                        penalty='elasticnet',
-                                                                       class_weight='balanced',
                                                                        solver='saga',
                                                                        max_iter=5000)
                                                     )
@@ -49,6 +50,25 @@ def baseline():
     print("\nClassification Report:")
     print(report)
 
+    best_pipe = gs.best_estimator_
+
+    # Get step names
+    logreg = best_pipe.named_steps['logisticregression']
+
+    # coefficients (1D array)
+    coefs = logreg.coef_[0]
+
+    # get original feature names
+    feature_names = x_train.columns
+
+    # build dataframe
+    importance_df = pd.DataFrame({
+        'feature': feature_names,
+        'coef': coefs,
+        'importance_abs': np.abs(coefs)
+    }).sort_values('importance_abs', ascending=False)
+
+    print(importance_df.head(20))
 
 if __name__ == "__main__":
     baseline()

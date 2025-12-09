@@ -1,4 +1,7 @@
+import numpy as np
 import pandas as pd
+import seaborn as sns
+from matplotlib import pyplot as plt
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import OrdinalEncoder
 
@@ -15,6 +18,27 @@ def preprocessing():
 
     df_raw = encode_with_ordinal_encoder(df_raw, "loan_grade", [['A', 'B', 'C', 'D', 'E', 'F', 'G']])
     df_raw = encode_with_ordinal_encoder(df_raw, "cb_person_default_on_file", [['N', 'Y']])
+
+    df_raw['person_income'] = np.log1p(df_raw['person_income'])
+    df_raw['loan_amnt'] = np.log1p(df_raw['loan_amnt'])
+
+    #df_raw.drop("person_age", axis=1, inplace=True)
+    #df_raw.drop("loan_int_rate", axis=1, inplace=True)
+
+    corr = df_raw.corr(numeric_only=True)
+    sns.heatmap(corr,
+                annot=True,  # Show correlation values
+                fmt='.2f',  # Format to 2 decimal places
+                cmap='RdBu_r',  # Better color scheme
+                center=0,
+                square=True,
+                linewidths=0.5,
+                cbar_kws={"shrink": 0.8},
+                annot_kws={"size": 8})
+    plt.figure(figsize=(20, 15))
+    sns.heatmap(corr, annot=True, cmap="coolwarm", center=0)
+    plt.title("Correlation Heatmap")
+    plt.savefig("../images/correlation_heatmap.png", dpi=300, bbox_inches="tight")
 
     df_raw.to_csv('../data/processed/train.csv', index=False)
 
